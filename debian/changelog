@@ -1,3 +1,9 @@
+python-httpretty (0.6.2-2) unstable; urgency=low
+
+  * Fixed debian/copyright
+
+ -- Thomas Goirand <zigo@debian.org>  Wed, 04 Sep 2013 20:07:17 +0800
+
 python-httpretty (0.6.2-1) unstable; urgency=low
 
   * Initial release. (Closes: #721517).
