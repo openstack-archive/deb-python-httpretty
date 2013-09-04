@@ -1,0 +1,34 @@
+Source: python-httpretty
+Section: python
+Priority: optional
+Maintainer: PKG OpenStack <openstack-devel@lists.alioth.debian.org>
+Uploaders: Julien Danjou <acid@debian.org>,
+           Thomas Goirand <zigo@debian.org>,
+           Mehdi Abaakouk <sileht@sileht.net>
+Build-Depends: debhelper (>= 9),
+               openstack-pkg-tools,
+               python-all (>= 2.6.6-3~),
+               python-setuptools
+Build-Depends-Indep: python-httplib2
+Standards-Version: 3.9.4
+Vcs-Browser: http://anonscm.debian.org/gitweb/?p=openstack/python-httpretty.git
+Vcs-Git: git://anonscm.debian.org/openstack/python-httpretty.git
+Homepage: http://github.com/gabrielfalcao/httpretty
+
+Package: python-httpretty
+Architecture: all
+Pre-Depends: dpkg (>= 1.15.6~)
+Depends: python-httplib2,
+         python-misaka,
+         python-mock,
+         python-nose,
+         python-requests,
+         ${misc:Depends},
+         ${python:Depends}
+Recommends: ${python:Recommends}
+Description: HTTP client mock for Python
+ Once upon a time a python developer wanted to use a RESTful API, everything
+ was fine but until the day he needed to test the code that hits the RESTful
+ API: what if the API server is down? What if its content has changed ?
+ .
+ Don't worry, HTTPretty is here for you.

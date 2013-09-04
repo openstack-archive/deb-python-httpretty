@@ -1,0 +1,5 @@
+python-httpretty (0.6.2-1) unstable; urgency=low
+
+  * Initial release. (Closes: #721517).
+
+ -- Thomas Goirand <zigo@debian.org>  Sun, 01 Sep 2013 22:09:02 +0800
