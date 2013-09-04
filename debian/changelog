@@ -1,3 +1,9 @@
+python-httpretty (0.6.2-3) UNRELEASED; urgency=low
+
+  * Fixed debian/copyright source field.
+
+ -- Thomas Goirand <zigo@debian.org>  Wed, 04 Sep 2013 12:11:11 +0000
+
 python-httpretty (0.6.2-2) unstable; urgency=low
 
   * Fixed debian/copyright
