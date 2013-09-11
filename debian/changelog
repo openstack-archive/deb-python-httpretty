@@ -1,6 +1,7 @@
 python-httpretty (0.6.3+20130727+git9d03c1cf-1) unstable; urgency=low
 
   * New upstream release.
+  * Fixed debian/copyright source field.
 
  -- Thomas Goirand <zigo@debian.org>  Wed, 11 Sep 2013 13:46:26 +0800
 

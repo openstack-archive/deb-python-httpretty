@@ -1,6 +1,6 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: httpretty
-Source: http://github.com/gabrielfalcao/httpretty
+Source: git://github.com/gabrielfalcao/HTTPretty.git
 
 Files: debian/*
 Copyright: (c) 2013, Thomas Goirand <zigo@debian.org>
