@@ -32,23 +32,27 @@ from setuptools import setup
 
 HTTPretty.disable()
 
+HTTPRETTY_PATH = os.path.abspath(os.path.join(__file__, os.pardir))
+
 
 def get_packages():
     # setuptools can't do the job :(
     packages = []
-    for root, dirnames, filenames in os.walk('httpretty'):
+    for root, dirnames, filenames in os.walk(os.path.join(HTTPRETTY_PATH, 'httpretty')):
+        path = root.replace(HTTPRETTY_PATH, '').strip('/')
         if '__init__.py' in filenames:
-            packages.append(".".join(os.path.split(root)).strip("."))
+            packages.append(".".join(os.path.split(path)).strip("."))
 
     return packages
 
 
 def test_packages():
-    test_reqs = os.path.join(os.getcwd(), 'requirements.pip')
+    test_reqs = os.path.join(HTTPRETTY_PATH, 'requirements.pip')
     tests_require = [
             line.strip() for line in open(test_reqs).readlines()
             if not line.startswith("#")
         ]
+    return tests_require
 
 setup(name='httpretty',
     version=version,
@@ -56,6 +60,11 @@ setup(name='httpretty',
     author='Gabriel Falcao',
     author_email='gabriel@nacaolivre.org',
     url='http://github.com/gabrielfalcao/httpretty',
+    zip_safe=False,
     packages=get_packages(),
-    tests_require=test_packages()
+    tests_require=test_packages(),
+    license='MIT',
+    classifiers=["Intended Audience :: Developers",
+                 "License :: OSI Approved :: MIT License",
+                 "Topic :: Software Development :: Testing"],
 )
