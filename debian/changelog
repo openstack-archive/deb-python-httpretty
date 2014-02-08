@@ -1,3 +1,9 @@
+python-httpretty (0.7.1-2) unstable; urgency=medium
+
+  * Added missing build-depends: python-mock, python-nose.
+
+ -- Thomas Goirand <zigo@debian.org>  Sat, 08 Feb 2014 15:18:07 +0800
+
 python-httpretty (0.7.1-1) unstable; urgency=medium
 
   * New upstream release.
