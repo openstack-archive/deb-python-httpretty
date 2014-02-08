@@ -11,7 +11,7 @@ Build-Depends: debhelper (>= 9),
                python-setuptools,
                python-sure
 Build-Depends-Indep: python-httplib2
-Standards-Version: 3.9.4
+Standards-Version: 3.9.5
 Vcs-Browser: http://anonscm.debian.org/gitweb/?p=openstack/python-httpretty.git
 Vcs-Git: git://anonscm.debian.org/openstack/python-httpretty.git
 Homepage: http://github.com/gabrielfalcao/httpretty
