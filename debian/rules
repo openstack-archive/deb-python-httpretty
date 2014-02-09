@@ -1,10 +1,19 @@
 #!/usr/bin/make -f
 
+PYTHONS:=$(shell pyversions -vr)
+PYTHON3S:=$(shell py3versions -vr)
+
 UPSTREAM_GIT = git://github.com/gabrielfalcao/HTTPretty.git
 include /usr/share/openstack-pkg-tools/pkgos.make
 
 %:
 	dh $@ --buildsystem=python_distutils --with python2
+
+override_dh_auto_install:
+	dh_auto_install -O--buildsystem=python_distutils
+	set -e && for pyvers in $(PYTHONS); do \
+		rm -r $(CURDIR)/debian/python-httpretty/usr/lib/python$$pyvers/dist-packages/tests ; \
+	done
 
 override_dh_auto_test:
 ifeq (,$(findstring nocheck, $(DEB_BUILD_OPTIONS)))
