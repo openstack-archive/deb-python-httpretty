@@ -5,14 +5,15 @@ Maintainer: PKG OpenStack <openstack-devel@lists.alioth.debian.org>
 Uploaders: Julien Danjou <acid@debian.org>,
            Thomas Goirand <zigo@debian.org>,
            Mehdi Abaakouk <sileht@sileht.net>
-Build-Depends: debhelper (>= 9),
-               openstack-pkg-tools,
-               python-all (>= 2.6.6-3~),
-               python-mock,
-               python-nose,
-               python-setuptools,
-               python-sure
-Build-Depends-Indep: python-httplib2
+Build-Depends: debhelper (>= 9), openstack-pkg-tools, python-all (>= 2.6.6-3~)
+Build-Depends-Indep: python-coverage,
+                     python-httplib2,
+                     python-mock,
+                     python-nose,
+                     python-requests,
+                     python-sure,
+                     python-tornado,
+                     python-urllib3
 Standards-Version: 3.9.5
 Vcs-Browser: http://anonscm.debian.org/gitweb/?p=openstack/python-httpretty.git
 Vcs-Git: git://anonscm.debian.org/openstack/python-httpretty.git
@@ -21,13 +22,7 @@ Homepage: http://github.com/gabrielfalcao/httpretty
 Package: python-httpretty
 Architecture: all
 Pre-Depends: dpkg (>= 1.15.6~)
-Depends: python-httplib2,
-         python-misaka,
-         python-mock,
-         python-nose,
-         python-requests,
-         ${misc:Depends},
-         ${python:Depends}
+Depends: python-urllib3, ${misc:Depends}, ${python:Depends}
 Recommends: ${python:Recommends}
 Description: HTTP client mock for Python
  Once upon a time a Python developer wanted to use a RESTful API, everything
