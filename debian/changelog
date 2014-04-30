@@ -2,7 +2,7 @@ python-httpretty (0.8.0-2) unstable; urgency=medium
 
   * Added python3 support.
   * Allow the unit tests to fail, because they do with the last version of
-    python-sure.
+    python-sure (Closes: #746118).
 
  -- Thomas Goirand <zigo@debian.org>  Thu, 03 Apr 2014 15:44:09 +0800
 
