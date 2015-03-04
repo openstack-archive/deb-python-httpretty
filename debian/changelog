@@ -1,3 +1,10 @@
+python-httpretty (0.8.0-3) UNRELEASED; urgency=medium
+
+  * Added a lintian-overrides for theme/assets/js/prefixfree.min.js: the file
+    isn't minifed, so it's ok.
+
+ -- Thomas Goirand <zigo@debian.org>  Wed, 04 Mar 2015 11:10:36 +0100
+
 python-httpretty (0.8.0-2) unstable; urgency=medium
 
   * Added python3 support.
