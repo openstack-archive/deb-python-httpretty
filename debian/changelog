@@ -1,4 +1,4 @@
-python-httpretty (0.8.0-3) UNRELEASED; urgency=medium
+python-httpretty (0.8.7-1) experimental; urgency=medium
 
   * Added a lintian-overrides for theme/assets/js/prefixfree.min.js: the file
     isn't minifed, so it's ok.
