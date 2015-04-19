@@ -1,15 +1,14 @@
-# HTTPretty 0.8.0
+# HTTPretty 0.8.3
 
 ![https://s3-us-west-2.amazonaws.com/s.cdpn.io/18885/httpretty-logo_1.svg](https://s3-us-west-2.amazonaws.com/s.cdpn.io/18885/httpretty-logo_1.svg)
 [![tip for next commit](http://tip4commit.com/projects/133.svg)](http://tip4commit.com/projects/133)
 [![Build Status](https://travis-ci.org/gabrielfalcao/HTTPretty.png?branch=master)](https://travis-ci.org/gabrielfalcao/HTTPretty)
-[![instanc.es Badge](https://instanc.es/bin/gabrielfalcao/HTTPretty.png)](http://instanc.es)
 [ChangeLog](NEWS.md)
 
 
 # Installing
 
-Since you are interested in HTTPretty you should also be insterested in speeding up your build.
+Since you are interested in HTTPretty you should also be interested in speeding up your build.
 Replace `pip` with [`curdling`](http://clarete.github.io/curdling/) and see your build running a lot faster.
 
 You can use curdling to install not only HTTPretty but every dependency in your project and see the speed gains.
@@ -294,8 +293,8 @@ import httpretty
 @httpretty.activate
 def test_response_callbacks():
 
-    def request_callback(method, uri, headers):
-        return (200, headers, "The {} response from {}".format(method, uri))
+    def request_callback(request, uri, headers):
+        return (200, headers, "The {} response from {}".format(request.method, uri))
 
     httpretty.register_uri(
         httpretty.GET, "https://api.yahoo.com/test",
@@ -304,6 +303,32 @@ def test_response_callbacks():
     response = requests.get('https://api.yahoo.com/test')
 
     expect(response.text).to.equal('The GET response from https://api.yahoo.com/test')
+```
+
+Dynamic responses can also be used when you have to work with badly designed APIs where, for example, the same uri and method are used to handle different requests based on request body which contains xml.
+
+```python
+import requests
+import httpretty
+
+@httpretty.activate
+def test_response_callbacks():
+
+    def request_callback(request, uri, headers):
+        # parse_xml() extracts important data from request
+        data = parse_xml(request.body)
+        # response based on that data
+        if data.something_important:
+            return (200, headers, "relevant data")
+        else:
+            return (400, headers, "panic mode!")
+
+    httpretty.register_uri(
+        httpretty.GET, "https://api.brilliant-api.com/",
+        body=request_callback)
+
+    response = requests.get('https://api.brilliant-api.com/')
+
 ```
 
 ## matching regular expressions

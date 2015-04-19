@@ -380,6 +380,29 @@ def test_multiline():
 
 
 @httprettified
+def test_octet_stream():
+    url = 'http://httpbin.org/post'
+    data = b"\xf5\x00\x00\x00"  # utf-8 with invalid start byte
+    headers = {
+        'Content-Type': 'application/octet-stream',
+    }
+    HTTPretty.register_uri(
+        HTTPretty.POST,
+        url,
+    )
+    response = requests.post(url, data=data, headers=headers)
+
+    expect(response.status_code).to.equal(200)
+    expect(HTTPretty.last_request.method).to.equal('POST')
+    expect(HTTPretty.last_request.path).to.equal('/post')
+    expect(HTTPretty.last_request.body).to.equal(data)
+    expect(HTTPretty.last_request.headers['content-length']).to.equal('4')
+    expect(HTTPretty.last_request.headers['content-type']).to.equal('application/octet-stream')
+    expect(len(HTTPretty.latest_requests)).to.equal(1)
+
+
+
+@httprettified
 def test_multipart():
     url = 'http://httpbin.org/post'
     data = b'--xXXxXXyYYzzz\r\nContent-Disposition: form-data; name="content"\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length: 68\r\n\r\nAction: comment\nText: Comment with attach\nAttachment: x1.txt, x2.txt\r\n--xXXxXXyYYzzz\r\nContent-Disposition: form-data; name="attachment_2"; filename="x.txt"\r\nContent-Type: text/plain\r\nContent-Length: 4\r\n\r\nbye\n\r\n--xXXxXXyYYzzz\r\nContent-Disposition: form-data; name="attachment_1"; filename="x.txt"\r\nContent-Type: text/plain\r\nContent-Length: 4\r\n\r\nbye\n\r\n--xXXxXXyYYzzz--\r\n'
@@ -743,6 +766,157 @@ def test_py26_callback_response():
     )
     os.environ['STOP'] = 'true'
     expect(request_callback.call_count).equal(1)
+
+
+@httprettified
+def test_httpretty_should_work_with_non_standard_ports():
+    "HTTPretty should work with a non-standard port number"
+
+    HTTPretty.register_uri(
+        HTTPretty.GET,
+        re.compile("https://api.yipit.com:1234/v1/deal;brand=(?P<brand_name>\w+)"),
+        body=lambda method, uri, headers: [200, headers, uri]
+    )
+    HTTPretty.register_uri(
+        HTTPretty.POST,
+        "https://asdf.com:666/meow",
+        body=lambda method, uri, headers: [200, headers, uri]
+    )
+
+    response = requests.get('https://api.yipit.com:1234/v1/deal;brand=gap?first_name=chuck&last_name=norris')
+
+    expect(response.text).to.equal('https://api.yipit.com:1234/v1/deal;brand=gap?first_name=chuck&last_name=norris')
+    expect(HTTPretty.last_request.method).to.equal('GET')
+    expect(HTTPretty.last_request.path).to.equal('/v1/deal;brand=gap?first_name=chuck&last_name=norris')
+
+    response = requests.post('https://asdf.com:666/meow')
+
+    expect(response.text).to.equal('https://asdf.com:666/meow')
+    expect(HTTPretty.last_request.method).to.equal('POST')
+    expect(HTTPretty.last_request.path).to.equal('/meow')
+
+
+@httprettified
+def test_httpretty_reset_by_switching_protocols_for_same_port():
+    "HTTPretty should reset protocol/port associations"
+
+    HTTPretty.register_uri(
+        HTTPretty.GET,
+        "http://api.yipit.com:1234/v1/deal",
+        body=lambda method, uri, headers: [200, headers, uri]
+    )
+
+    response = requests.get('http://api.yipit.com:1234/v1/deal')
+
+    expect(response.text).to.equal('http://api.yipit.com:1234/v1/deal')
+    expect(HTTPretty.last_request.method).to.equal('GET')
+    expect(HTTPretty.last_request.path).to.equal('/v1/deal')
+
+    HTTPretty.reset()
+
+    HTTPretty.register_uri(
+        HTTPretty.GET,
+        "https://api.yipit.com:1234/v1/deal",
+        body=lambda method, uri, headers: [200, headers, uri]
+    )
+
+    response = requests.get('https://api.yipit.com:1234/v1/deal')
+
+    expect(response.text).to.equal('https://api.yipit.com:1234/v1/deal')
+    expect(HTTPretty.last_request.method).to.equal('GET')
+    expect(HTTPretty.last_request.path).to.equal('/v1/deal')
+
+
+@httprettified
+def test_httpretty_should_allow_registering_regexes_with_port_and_give_a_proper_match_to_the_callback():
+    "HTTPretty should allow registering regexes with requests and giva a proper match to the callback"
+
+    HTTPretty.register_uri(
+        HTTPretty.GET,
+        re.compile("https://api.yipit.com:1234/v1/deal;brand=(?P<brand_name>\w+)"),
+        body=lambda method, uri, headers: [200, headers, uri]
+    )
+
+    response = requests.get('https://api.yipit.com:1234/v1/deal;brand=gap?first_name=chuck&last_name=norris')
+
+    expect(response.text).to.equal('https://api.yipit.com:1234/v1/deal;brand=gap?first_name=chuck&last_name=norris')
+    expect(HTTPretty.last_request.method).to.equal('GET')
+    expect(HTTPretty.last_request.path).to.equal('/v1/deal;brand=gap?first_name=chuck&last_name=norris')
+
+@httprettified
+def test_httpretty_should_work_with_non_standard_ports():
+    "HTTPretty should work with a non-standard port number"
+
+    HTTPretty.register_uri(
+        HTTPretty.GET,
+        re.compile("https://api.yipit.com:1234/v1/deal;brand=(?P<brand_name>\w+)"),
+        body=lambda method, uri, headers: [200, headers, uri]
+    )
+    HTTPretty.register_uri(
+        HTTPretty.POST,
+        "https://asdf.com:666/meow",
+        body=lambda method, uri, headers: [200, headers, uri]
+    )
+
+    response = requests.get('https://api.yipit.com:1234/v1/deal;brand=gap?first_name=chuck&last_name=norris')
+
+    expect(response.text).to.equal('https://api.yipit.com:1234/v1/deal;brand=gap?first_name=chuck&last_name=norris')
+    expect(HTTPretty.last_request.method).to.equal('GET')
+    expect(HTTPretty.last_request.path).to.equal('/v1/deal;brand=gap?first_name=chuck&last_name=norris')
+
+    response = requests.post('https://asdf.com:666/meow')
+
+    expect(response.text).to.equal('https://asdf.com:666/meow')
+    expect(HTTPretty.last_request.method).to.equal('POST')
+    expect(HTTPretty.last_request.path).to.equal('/meow')
+
+
+@httprettified
+def test_httpretty_reset_by_switching_protocols_for_same_port():
+    "HTTPretty should reset protocol/port associations"
+
+    HTTPretty.register_uri(
+        HTTPretty.GET,
+        "http://api.yipit.com:1234/v1/deal",
+        body=lambda method, uri, headers: [200, headers, uri]
+    )
+
+    response = requests.get('http://api.yipit.com:1234/v1/deal')
+
+    expect(response.text).to.equal('http://api.yipit.com:1234/v1/deal')
+    expect(HTTPretty.last_request.method).to.equal('GET')
+    expect(HTTPretty.last_request.path).to.equal('/v1/deal')
+
+    HTTPretty.reset()
+
+    HTTPretty.register_uri(
+        HTTPretty.GET,
+        "https://api.yipit.com:1234/v1/deal",
+        body=lambda method, uri, headers: [200, headers, uri]
+    )
+
+    response = requests.get('https://api.yipit.com:1234/v1/deal')
+
+    expect(response.text).to.equal('https://api.yipit.com:1234/v1/deal')
+    expect(HTTPretty.last_request.method).to.equal('GET')
+    expect(HTTPretty.last_request.path).to.equal('/v1/deal')
+
+
+@httprettified
+def test_httpretty_should_allow_registering_regexes_with_port_and_give_a_proper_match_to_the_callback():
+    "HTTPretty should allow registering regexes with requests and giva a proper match to the callback"
+
+    HTTPretty.register_uri(
+        HTTPretty.GET,
+        re.compile("https://api.yipit.com:1234/v1/deal;brand=(?P<brand_name>\w+)"),
+        body=lambda method, uri, headers: [200, headers, uri]
+    )
+
+    response = requests.get('https://api.yipit.com:1234/v1/deal;brand=gap?first_name=chuck&last_name=norris')
+
+    expect(response.text).to.equal('https://api.yipit.com:1234/v1/deal;brand=gap?first_name=chuck&last_name=norris')
+    expect(HTTPretty.last_request.method).to.equal('GET')
+    expect(HTTPretty.last_request.path).to.equal('/v1/deal;brand=gap?first_name=chuck&last_name=norris')
 
 
 import json
