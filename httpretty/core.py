@@ -66,7 +66,7 @@ from .utils import (
     decode_utf8,
 )
 
-from .errors import HTTPrettyError
+from .errors import HTTPrettyError, UnmockedError
 
 from datetime import datetime
 from datetime import timedelta
@@ -160,7 +160,8 @@ class HTTPrettyRequest(BaseHTTPRequestHandler, BaseClass):
         self.error_message = None
 
         # Parse the request based on the attributes above
-        self.parse_request()
+        if not self.parse_request():
+            return
 
         # making the HTTP method string available as the command
         self.method = self.command
@@ -172,6 +173,7 @@ class HTTPrettyRequest(BaseHTTPRequestHandler, BaseClass):
             self.path = self.path.encode('iso-8859-1')
         except UnicodeDecodeError:
             pass
+
         self.path = decode_utf8(self.path)
 
         qstring = self.path.split("?", 1)[-1]
@@ -227,7 +229,9 @@ class HTTPrettyRequestEmpty(object):
 
 
 class FakeSockFile(StringIO):
-    pass
+    def close(self):
+        self.socket.close()
+        StringIO.close(self)
 
 
 class FakeSSLSocket(object):
@@ -246,14 +250,16 @@ class fakesock(object):
 
         def __init__(self, family=socket.AF_INET, type=socket.SOCK_STREAM,
                      protocol=0):
-            self.setsockopt(family, type, protocol)
-            self.truesock = old_socket(family, type, protocol)
+            self.truesock = (old_socket(family, type, protocol)
+                             if httpretty.allow_net_connect
+                             else None)
             self._closed = True
             self.fd = FakeSockFile()
+            self.fd.socket = self
             self.timeout = socket._GLOBAL_DEFAULT_TIMEOUT
             self._sock = self
             self.is_http = False
-            self._bufsize = 16
+            self._bufsize = 1024
 
         def getpeercert(self, *a, **kw):
             now = datetime.now()
@@ -282,22 +288,34 @@ class fakesock(object):
         def ssl(self, sock, *args, **kw):
             return sock
 
-        def setsockopt(self, family, type, protocol):
-            self.family = family
-            self.protocol = protocol
-            self.type = type
+        def setsockopt(self, level, optname, value):
+            if self.truesock:
+                self.truesock.setsockopt(level, optname, value)
 
         def connect(self, address):
-            self._address = (self._host, self._port) = address
             self._closed = False
-            self.is_http = self._port in POTENTIAL_HTTP_PORTS | POTENTIAL_HTTPS_PORTS
+
+            try:
+                self._address = (self._host, self._port) = address
+            except ValueError:
+                # We get here when the address is just a string pointing to a
+                # unix socket path/file
+                #
+                # See issue #206
+                self.is_http = False
+            else:
+                self.is_http = self._port in POTENTIAL_HTTP_PORTS | POTENTIAL_HTTPS_PORTS
 
             if not self.is_http:
-                self.truesock.connect(self._address)
+                if self.truesock:
+                    self.truesock.connect(self._address)
+                else:
+                    raise UnmockedError()
 
         def close(self):
-            if not (self.is_http and self._closed):
-                self.truesock.close()
+            if not self.is_http and not self._closed:
+                if self.truesock:
+                    self.truesock.close()
             self._closed = True
 
         def makefile(self, mode='r', bufsize=-1):
@@ -324,12 +342,16 @@ class fakesock(object):
             buffer so that HTTPretty can return it accordingly when
             necessary.
             """
-            if self.is_http:  # no need to connect if `self.is_http` is
-                              # False because self.connect already did
-                              # that
-                self.truesock.connect(self._address)
 
-            self.truesock.settimeout(0)
+            if not self.truesock:
+                raise UnmockedError()
+
+            if not self.is_http:
+                return self.truesock.sendall(data, *args, **kw)
+
+            self.truesock.connect(self._address)
+
+            self.truesock.setblocking(1)
             self.truesock.sendall(data, *args, **kw)
 
             should_continue = True
@@ -337,7 +359,7 @@ class fakesock(object):
                 try:
                     received = self.truesock.recv(self._bufsize)
                     self.fd.write(received)
-                    should_continue = len(received) > 0
+                    should_continue = len(received) == self._bufsize
 
                 except socket.error as e:
                     if e.errno == EAGAIN:
@@ -348,7 +370,8 @@ class fakesock(object):
 
         def sendall(self, data, *args, **kw):
             self._sent_data.append(data)
-
+            self.fd = FakeSockFile()
+            self.fd.socket = self
             try:
                 requestline, _ = data.split(b'\r\n', 1)
                 method, path, version = parse_requestline(decode_utf8(requestline))
@@ -397,7 +420,7 @@ class fakesock(object):
 
             self._entry = matcher.get_next_entry(method, info, request)
 
-        def debug(self, func, *a, **kw):
+        def debug(self, truesock_func, *a, **kw):
             if self.is_http:
                 frame = inspect.stack()[0][0]
                 lines = list(map(utf8, traceback.format_stack(frame)))
@@ -410,30 +433,34 @@ class fakesock(object):
                     "".join(decode_utf8(lines)),
                 ]
                 raise RuntimeError("\n".join(message))
-            return func(*a, **kw)
+            if not self.truesock:
+                raise UnmockedError()
+            return getattr(self.truesock, truesock_func)(*a, **kw)
 
         def settimeout(self, new_timeout):
             self.timeout = new_timeout
 
         def send(self, *args, **kwargs):
-            return self.debug(self.truesock.send, *args, **kwargs)
+            return self.debug('send', *args, **kwargs)
 
         def sendto(self, *args, **kwargs):
-            return self.debug(self.truesock.sendto, *args, **kwargs)
+            return self.debug('sendto', *args, **kwargs)
 
         def recvfrom_into(self, *args, **kwargs):
-            return self.debug(self.truesock.recvfrom_into, *args, **kwargs)
+            return self.debug('recvfrom_into', *args, **kwargs)
 
         def recv_into(self, *args, **kwargs):
-            return self.debug(self.truesock.recv_into, *args, **kwargs)
+            return self.debug('recv_into', *args, **kwargs)
 
         def recvfrom(self, *args, **kwargs):
-            return self.debug(self.truesock.recvfrom, *args, **kwargs)
+            return self.debug('recvfrom', *args, **kwargs)
 
         def recv(self, *args, **kwargs):
-            return self.debug(self.truesock.recv, *args, **kwargs)
+            return self.debug('recv', *args, **kwargs)
 
         def __getattr__(self, name):
+            if not self.truesock:
+                raise UnmockedError()
             return getattr(self.truesock, name)
 
 
@@ -797,6 +824,7 @@ class httpretty(HttpBaseClass):
 
     last_request = HTTPrettyRequestEmpty()
     _is_enabled = False
+    allow_net_connect = True
 
     @classmethod
     def match_uriinfo(cls, info):
