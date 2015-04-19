@@ -1,3 +1,9 @@
+python-httpretty (0.8.3-2) experimental; urgency=medium
+
+  * Adds a patch to remove non-ascii chars from source.
+
+ -- Thomas Goirand <zigo@debian.org>  Sun, 19 Apr 2015 11:22:29 +0200
+
 python-httpretty (0.8.3-1) experimental; urgency=medium
 
   * New upstream release.
