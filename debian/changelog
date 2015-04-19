@@ -1,6 +1,7 @@
 python-httpretty (0.8.6-1) experimental; urgency=medium
 
   * New upstream release.
+  * Added export http{s,}_proxy.
 
  -- Thomas Goirand <zigo@debian.org>  Sun, 19 Apr 2015 12:01:53 +0200
 
