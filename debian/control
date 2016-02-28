@@ -28,7 +28,7 @@ Build-Depends-Indep: python-coverage,
 Standards-Version: 3.9.6
 Vcs-Browser: http://anonscm.debian.org/gitweb/?p=openstack/python-httpretty.git
 Vcs-Git: git://anonscm.debian.org/openstack/python-httpretty.git
-Homepage: http://github.com/gabrielfalcao/httpretty
+Homepage: https://github.com/gabrielfalcao/httpretty
 
 Package: python-httpretty
 Architecture: all
