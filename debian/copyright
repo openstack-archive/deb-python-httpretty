@@ -2,12 +2,12 @@ Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: httpretty
 Source: https://github.com/gabrielfalcao/HTTPretty
 
-Files: debian/*
-Copyright: (c) 2013, Thomas Goirand <zigo@debian.org>
-License: MIT
-
 Files: *
 Copyright: (c) 2013, Gabriel Falcao
+License: MIT
+
+Files: debian/*
+Copyright: (c) 2013, Thomas Goirand <zigo@debian.org>
 License: MIT
 
 License: MIT
