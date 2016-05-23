@@ -27,3 +27,6 @@ ifeq (,$(findstring nocheck, $(DEB_BUILD_OPTIONS)))
 	nosetests tests/unit
 	nosetests3 tests/unit
 endif
+
+override_dh_installchangelogs:
+	dh_installchangelogs docs/NEWS.md
