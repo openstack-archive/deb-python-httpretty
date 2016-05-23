@@ -24,6 +24,6 @@ override_dh_auto_install:
 
 override_dh_auto_test:
 ifeq (,$(findstring nocheck, $(DEB_BUILD_OPTIONS)))
-	nosetests tests/unit || true
-	#nosetests3 tests/unit || true
+	nosetests tests/unit
+	nosetests3 tests/unit
 endif

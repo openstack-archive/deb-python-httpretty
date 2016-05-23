@@ -8,6 +8,7 @@ python-httpretty (0.8.14-1) UNRELEASED; urgency=medium
     - Changed source URL to https protocol
     - Reordered
   * Rebased removes-non-ascii-char-from-source.patch
+  * Don't ignore unittests results during build and enable Py3 tests
 
  -- Ondřej Nový <novy@ondrej.org>  Sun, 28 Feb 2016 15:39:03 +0100
 
