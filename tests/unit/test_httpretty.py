@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # <HTTPretty - HTTP client mock for Python>
-# Copyright (C) <2011-2013>  Gabriel Falcão <gabriel@nacaolivre.org>
+# Copyright (C) <2011-2015>  Gabriel Falcão <gabriel@nacaolivre.org>
 #
 # Permission is hereby granted, free of charge, to any person
 # obtaining a copy of this software and associated documentation
@@ -33,8 +33,10 @@ from httpretty.http import STATUSES
 
 try:
     from mock import MagicMock
+    from mock import patch
 except ImportError:
     from unittest.mock import MagicMock
+    from unittest.mock import patch
 
 TEST_HEADER = """
 GET /test/test.html HTTP/1.1
@@ -236,7 +238,9 @@ def test_uri_info_eq_ignores_case():
     )
     expect(uri_info_uppercase).to.equal(uri_info_lowercase)
 
+
 def test_global_boolean_enabled():
+    HTTPretty.disable()
     expect(HTTPretty.is_enabled()).to.be.falsy
     HTTPretty.enable()
     expect(HTTPretty.is_enabled()).to.be.truthy
@@ -397,3 +401,25 @@ def test_HTTPrettyRequest_arbitrarypost():
     gibberish_body = "1234567890!@#$%^&*()"
     request = HTTPrettyRequest(header, gibberish_body)
     expect(request.parsed_body).to.equal(gibberish_body)
+
+
+def test_socktype_bad_python_version_regression():
+    """ Some versions of python accidentally internally shadowed the SockType
+    variable, so it was no longer the socket object but and int Enum representing
+    the socket type e.g. AF_INET. Make sure we don't patch SockType in these cases
+    https://bugs.python.org/issue20386
+    """
+    import socket
+    someObject = object()
+    with patch('socket.SocketType', someObject):
+        HTTPretty.enable()
+        expect(socket.SocketType).to.equal(someObject)
+        HTTPretty.disable()
+
+
+def test_socktype_good_python_version():
+    import socket
+    with patch('socket.SocketType', socket.socket):
+        HTTPretty.enable()
+        expect(socket.SocketType).to.equal(socket.socket)
+        HTTPretty.disable()
