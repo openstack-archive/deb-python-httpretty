@@ -1,6 +1,6 @@
 python-httpretty (0.8.14-1) UNRELEASED; urgency=medium
 
-  * New upstream release
+  * New upstream release (Closes: #815851)
   * Fixed homepage (https).
   * Fixed VCS URLs (https).
   * d/rules: Changed UPSTREAM_GIT protocol to https
