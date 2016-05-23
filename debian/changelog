@@ -5,6 +5,7 @@ python-httpretty (0.8.14-1) UNRELEASED; urgency=medium
   * Fixed VCS URLs (https).
   * d/rules: Changed UPSTREAM_GIT protocol to https
   * d/copyright: Changed source URL to https protocol
+  * Rebased removes-non-ascii-char-from-source.patch
 
  -- Ondřej Nový <novy@ondrej.org>  Sun, 28 Feb 2016 15:39:03 +0100
 
