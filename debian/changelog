@@ -1,5 +1,6 @@
-python-httpretty (0.8.14-1) UNRELEASED; urgency=medium
+python-httpretty (0.8.14-1) unstable; urgency=medium
 
+  * Team upload.
   * New upstream release (Closes: #815851)
   * Fixed homepage (https).
   * Fixed VCS URLs (https).
@@ -14,7 +15,7 @@ python-httpretty (0.8.14-1) UNRELEASED; urgency=medium
   * Standards-Version is 3.9.8 now (no changes needed)
   * Install upstream changelog
 
- -- Ondřej Nový <novy@ondrej.org>  Sun, 28 Feb 2016 15:39:03 +0100
+ -- Ondřej Nový <novy@ondrej.org>  Tue, 24 May 2016 14:08:23 +0200
 
 python-httpretty (0.8.6-2) unstable; urgency=medium
 
