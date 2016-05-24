@@ -9,7 +9,7 @@ python-httpretty (0.8.14-1) unstable; urgency=medium
     - Changed source URL to https protocol
     - Reordered
     - Added myself to Debian part
-  * Rebased removes-non-ascii-char-from-source.patch
+  * Removed removes-non-ascii-char-from-source.patch (not needed)
   * Don't ignore unittests results during build and enable Py3 tests
   * Enabled autopkgtest-pkg-python testsuite
   * Standards-Version is 3.9.8 now (no changes needed)
