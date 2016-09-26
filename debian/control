@@ -26,8 +26,8 @@ Build-Depends-Indep: python-coverage,
                      python3-tornado,
                      python3-urllib3,
 Standards-Version: 3.9.8
-Vcs-Browser: https://anonscm.debian.org/cgit/openstack/python-httpretty.git/
-Vcs-Git: https://anonscm.debian.org/git/openstack/python-httpretty.git
+Vcs-Browser: https://git.openstack.org/cgit/openstack/deb-python-httpretty?h=debian%2Fnewton
+Vcs-Git: https://git.openstack.org/openstack/deb-python-httpretty -b debian/newton
 Homepage: https://github.com/gabrielfalcao/httpretty
 Testsuite: autopkgtest-pkg-python
 
